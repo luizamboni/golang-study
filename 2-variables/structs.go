@@ -24,6 +24,25 @@ func main() {
 	address3 := Address{Number: 61, Street: "Benjamin Constant"}
 	fmt.Println("address3:", address3)
 
+	// assing pointer
+	fmt.Println("assign pointer ---------------------------------------------------")
+
+	address4 := address1
+	// it changes both
+	address4.Number = 50
+	fmt.Println("address1:", address1)
+	fmt.Println("address4:", address4)
+
+	// assign values
+	fmt.Println("assign values ---------------------------------------------------")
+
+	address5 := *address1
+	// changes only address5
+	address5.Number = 80
+	address5.Street = "Outra"
+	fmt.Println("address1:", address1)
+	fmt.Println("address5:", address5)
+
 	// in slices
 	// init a slice of Address type
 	addresses := make([]Address, 0)
