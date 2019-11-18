@@ -1,6 +1,8 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 // define Error struct
 type CustomError struct {
@@ -18,5 +20,6 @@ func returnError() error {
 
 func main() {
 	err := returnError()
+	fmt.Println(Unwrap(err))
 	fmt.Println(err)
 }
