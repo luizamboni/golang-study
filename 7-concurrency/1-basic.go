@@ -6,7 +6,10 @@ import (
 )
 
 func printSomething(i int, channel chan string) {
+	fmt.Println("start of printSomething", i)
+
 	channel <- "okokoko " + strconv.FormatInt(int64(i), 10)
+	fmt.Println("end of printSomething", i)
 }
 
 func main() {
