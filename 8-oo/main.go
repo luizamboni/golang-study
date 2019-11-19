@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	s "example.com/m/service"
 	"github.com/go-redis/redis"
 )
 
@@ -107,4 +108,6 @@ func main() {
 	}
 
 	fmt.Println("offer:", offer)
+
+	fmt.Println(new(s.Service))
 }
