@@ -15,3 +15,8 @@ need install external modules (go modules)
 ```bash
 go get -u github.com/go-redis/redis/v7
 ```
+
+to test all test
+```bash
+go  test -v 8-oo/*_test.go
+```
