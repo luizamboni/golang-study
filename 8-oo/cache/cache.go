@@ -2,7 +2,6 @@ package cache
 
 import (
 	"fmt"
-	"io/ioutil"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -17,31 +16,31 @@ type Cache struct {
 
 var instance Cache
 
-func readFile(relativePath string) (string, error) {
-	b, err := ioutil.ReadFile(relativePath)
-	if err != nil {
-		panic(err)
+func readConfig(relativePath string, filename string) viper.Viper {
+
+	v := viper.New()
+	v.SetConfigType("toml")
+	v.SetConfigName(filename)
+	v.AddConfigPath(relativePath)
+	v.AddConfigPath(".")
+	err := v.ReadInConfig()
+
+	if err != nil { // Handle errors reading the config file
+		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
-	return string(b), nil
+
+	return *v
 }
 
 func GetInstance() (*Cache, error) {
 
 	if instance.inited == false {
-		// content, _ := readFile("./config/redis.toml")
-		viper.SetConfigType("toml")
-		viper.SetConfigName("redis")
-		viper.AddConfigPath("./config/")
-		viper.AddConfigPath(".")
-		err := viper.ReadInConfig() // Find and read the config file
-		if err != nil {             // Handle errors reading the config file
-			panic(fmt.Errorf("Fatal error config file: %s \n", err))
-		}
+		config := readConfig("./config/", "redis")
 
-		url := viper.GetString("redis.url")
-		password := viper.GetString("redis.password")
-		db := viper.GetInt("redis.db")
-		prefix := viper.GetString("redis.prefix")
+		url := config.GetString("redis.url")
+		password := config.GetString("redis.password")
+		db := config.GetInt("redis.db")
+		prefix := config.GetString("redis.prefix")
 
 		redisclient := redis.NewClient(&redis.Options{
 			Addr:     url,
