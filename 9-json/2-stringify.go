@@ -10,8 +10,9 @@ type Complex struct {
 	ExampleItem Example1
 }
 type Example1 struct {
-	Id  int
-	Key string
+	Id           int
+	Key          string
+	privateField string
 }
 
 func main() {
@@ -19,5 +20,7 @@ func main() {
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	// private fields are out JSON
 	fmt.Println("json:", string(bytes))
 }
