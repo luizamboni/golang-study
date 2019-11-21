@@ -1,7 +1,6 @@
 package test
 
 import (
-	"fmt"
 	"testing"
 
 	"example.com/m/service"
@@ -12,7 +11,7 @@ type StorageMock struct {
 }
 
 func (s StorageMock) Get(key string) string {
-	return "{ \"Name\": \"Mochila\" }"
+	return s.store[key]
 }
 
 func (s StorageMock) Set(key string, v string, ttl int) error {
@@ -21,15 +20,30 @@ func (s StorageMock) Set(key string, v string, ttl int) error {
 }
 
 func TestCacheKeyProduced(t *testing.T) {
-	store := map[string]string{"offer-1": "{\"Name\": \"Mochila\"}"}
+	store := map[string]string{
+		"offer-1": "{\"Name\": \"Mochila\"}",
+		"offer-2": "{\"name\": \"Mochila\"}",
+		"offer-3": "{\"NAME\": \"Mochila\"}",
+	}
+
 	serv := service.New(StorageMock{
 		store: store,
 	})
 
-	got := serv.GetOfferByID("1")
+	examples := []struct {
+		id       string
+		expected string
+	}{
+		{"1", "Mochila"},
+		{"2", "Mochila"},
+		{"3", "Mochila"},
+	}
 
-	fmt.Println("got", got)
-	if got.Name != "Mochila" {
-		t.Errorf("Abs(-1) = %s; want 1", got.Name)
+	for _, example := range examples {
+		got := serv.GetOfferByID(example.id)
+
+		if got.Name != example.expected {
+			t.Errorf("Mochila = %s; want \"Mochila\"", got.Name)
+		}
 	}
 }

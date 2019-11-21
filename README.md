@@ -10,6 +10,7 @@ Explore variables:
 structs, contants, primitives etc
 
 # 8 - Object Orientation
+ps.: use commands bellow in example directory (8-oo)
 
 up redis
 ```bash
@@ -23,5 +24,5 @@ go get -u github.com/go-redis/redis/v7
 
 to test all test
 ```bash
-go  test -v 8-oo/*_test.go
+go  test -v *_test.go
 ```
