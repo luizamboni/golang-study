@@ -3,9 +3,9 @@ package main
 import (
 	"fmt"
 
-	"example.com/m/cache"
-
 	"example.com/m/service"
+
+	"example.com/m/cache"
 )
 
 func main() {
@@ -15,16 +15,16 @@ func main() {
 		panic(error)
 	}
 
-	v, error := c.Get("abc")
+	v := c.Get("abc")
 	if error != nil {
 		fmt.Println(error)
 	}
 
-	fmt.Println("value:", v)
+	fmt.Println("value when not exists:", v)
 
-	c.Set("abc", "123", 6)
+	c.Set("abc", "{ \"Name\":\"notebook\", \"Count\": 123, \"Average\": 12, \"Price\": 100.0 }", 6)
 
-	v, error = c.Get("abc")
+	v = c.Get("abc")
 	if error != nil {
 		fmt.Println(error)
 	}
@@ -33,14 +33,20 @@ func main() {
 
 	service := service.New(c)
 
-	c.Set("offer-abc", "123", 60)
+	c.Set("offer-1", "{ \"Name\": \"telefone\", \"Count\": 123, \"Average\": 12, \"Price\": 100.0 }", 60)
+	c.Set("offer-2", "{ \"name\": \"telefone\", \"Count\": 123, \"Average\": 12, \"Price\": 100.0 }", 60)
+	c.Set("offer-2", "{ \"NAME\": \"telefone\", \"Count\": 123, \"Average\": 12, \"Price\": 100.0 }", 60)
 
-	offer, error := service.GetOfferByID("abc")
+	offer1 := service.GetOfferByID("1")
+	offer2 := service.GetOfferByID("1")
+	offer3 := service.GetOfferByID("1")
 
-	if error != nil {
-		fmt.Println("error", error)
-	}
+	// if error != nil {
+	// 	fmt.Println("error", error)
+	// }
 
-	fmt.Println("offer:", offer)
+	fmt.Println("offer:", offer1)
+	fmt.Println("offer:", offer2)
+	fmt.Println("offer:", offer3)
 
 }

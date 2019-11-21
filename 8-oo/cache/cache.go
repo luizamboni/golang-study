@@ -65,8 +65,10 @@ func (c Cache) genKey(key string) string {
 	return c.prefix + key
 }
 
-func (c Cache) Get(key string) (string, error) {
-	return c.redis.Get(c.genKey(key)).Result()
+func (c Cache) Get(key string) string {
+
+	str, _ := c.redis.Get(c.genKey(key)).Result()
+	return str
 }
 
 func (c Cache) Set(key string, value string, seconds int) error {

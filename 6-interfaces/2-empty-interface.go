@@ -16,12 +16,22 @@ type Point struct {
 }
 
 type Vector struct {
-	a Point
-	b Point
+	A Point
+	B Point
 }
 
 func acceptAnyType(obj Any) {
-	fmt.Println(obj)
+	fmt.Println("obj:", obj)
+
+	// type switch to handle multiple
+	switch v := obj.(type) {
+	case Vector:
+		fmt.Println("is a Vector", v.A, v.B)
+
+	case Point:
+		fmt.Println("is a Point", v.X, v.Y)
+	}
+
 }
 
 func main() {
@@ -34,5 +44,4 @@ func main() {
 	}
 
 	acceptAnyType(vt)
-
 }
