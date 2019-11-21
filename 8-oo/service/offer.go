@@ -21,8 +21,17 @@ func (o *Offer) UnmarshalJSON(b []byte) error {
 	m := f.(map[string]interface{})
 	fmt.Println("UnmarshalJSON", m)
 
-	o.Average = m["Average"].(float64)
-	o.Count = m["Count"].(float64)
+	if i, ok := m["Average"]; ok == true {
+		o.Average = i.(float64)
+	}
+
+	if i, ok := m["Count"]; ok == true {
+		o.Count = i.(float64)
+	}
+
+	if i, ok := m["Price"]; ok == true {
+		o.Price = i.(float64)
+	}
 
 	// handle name or Name or NAME
 	if i, ok := m["name"]; ok == true {
@@ -36,9 +45,6 @@ func (o *Offer) UnmarshalJSON(b []byte) error {
 	if i, ok := m["NAME"]; ok == true {
 		o.Name = i.(string)
 	}
-
-	// o.Name = m["name"].(string)
-	o.Price = m["Price"].(float64)
 
 	return nil
 }
