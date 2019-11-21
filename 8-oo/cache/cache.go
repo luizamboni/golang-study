@@ -1,11 +1,10 @@
 package cache
 
 import (
-	"fmt"
 	"time"
 
+	"example.com/m/utils"
 	"github.com/go-redis/redis"
-	"github.com/spf13/viper"
 )
 
 type Cache struct {
@@ -16,26 +15,11 @@ type Cache struct {
 
 var instance Cache
 
-func readConfig(relativePath string, filename string) viper.Viper {
-
-	v := viper.New()
-	v.SetConfigType("toml")
-	v.SetConfigName(filename)
-	v.AddConfigPath(relativePath)
-	v.AddConfigPath(".")
-	err := v.ReadInConfig()
-
-	if err != nil { // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
-
-	return *v
-}
-
 func GetInstance() (*Cache, error) {
 
-	if instance.inited == false {
-		config := readConfig("./config/", "redis")
+	if instance.redis == false {
+
+		config := utils.ReadConfig("./config/", "redis")
 
 		url := config.GetString("redis.url")
 		password := config.GetString("redis.password")
