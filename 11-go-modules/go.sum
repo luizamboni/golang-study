@@ -1,0 +1,4 @@
+github.com/deckarep/golang-set v1.8.0 h1:sk9/l/KqpunDwP7pSjUg0keiOOLEnOBHzykLrsPppp4=
+github.com/deckarep/golang-set v1.8.0/go.mod h1:5nI87KwE7wgsBU1F4GKAw2Qod7p5kyS383rP6+o6qqo=
+github.com/masatana/go-textdistance v0.0.0-20191005053614-738b0edac985 h1:Pz8zZjVRvKxISYimNzLGnzSNl5hYXFSN80FPQ+qt1HE=
+github.com/masatana/go-textdistance v0.0.0-20191005053614-738b0edac985/go.mod h1:1nU7rI+iBPtzc9ZKOqeQacD290rA0wcJLu5AtOSBBPw=

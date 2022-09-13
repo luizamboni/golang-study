@@ -26,3 +26,24 @@ to test all test
 ```bash
 go  test -v *_test.go
 ```
+
+# 11 - go modules
+created with  
+```
+go mod init go-study.com/m 
+```
+
+To install a public module
+```
+go get github.com/masatana/go-textdistance
+```
+
+To add dependencies in vendor package 
+```
+go mod vendor
+```
+
+and run
+```
+go run main.go
+```
