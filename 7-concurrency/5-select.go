@@ -12,12 +12,12 @@ func main() {
 	count := 0
 
 	go func() {
-		time.Sleep(1 * time.Second)
+		time.Sleep(5 * time.Second)
 		c1 <- 1
 	}()
 
 	go func() {
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		c2 <- 2
 	}()
 

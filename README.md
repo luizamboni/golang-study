@@ -2,6 +2,11 @@ Golang Study
 ===
 Its a dummy project only for my personal studies.
 
+GOROOT:
+
+GOPATH:
+
+
 # 1 - Output
 Explore output methods
 
