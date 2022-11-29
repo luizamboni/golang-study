@@ -3,14 +3,16 @@ package main
 import (
 	"fmt"
 
-	memory "go-study.com/m/adapters/memory"
-	core "go-study.com/m/core"
+	"go-study.com/m/adapters/memory/notificator"
+	"go-study.com/m/adapters/memory/repo"
+	"go-study.com/m/core"
 )
 
 func main() {
 
-	ruleRepo := memory.NewRuleRepo()
-	productRepo := memory.NewRuleRepo()
+	ruleRepo := repo.NewRuleRepo()
+	productRepo := repo.NewRuleRepo()
+	smsNotificator := notificator.NewSmsNotificator()
 
 	classifications := ruleRepo.GetRules()
 
@@ -20,6 +22,11 @@ func main() {
 		if err != nil {
 			fmt.Println("categorize fail by", err.Error())
 		}
-		fmt.Println("category:", category)
+		if category != "" {
+			product.Category = category
+			if smsNotificator.Notify(product) == false {
+				fmt.Println("fail to notify change")
+			}
+		}
 	}
 }

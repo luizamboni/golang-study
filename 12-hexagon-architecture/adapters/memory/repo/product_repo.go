@@ -1,4 +1,4 @@
-package rules_repo
+package repo
 
 import "go-study.com/m/core"
 
