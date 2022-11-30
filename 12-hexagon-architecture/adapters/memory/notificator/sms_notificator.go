@@ -7,14 +7,17 @@ import (
 )
 
 type SmsNotificator struct {
+	logger *core.Logger
 }
 
 func (s SmsNotificator) Notify(product core.Product) bool {
-	fmt.Println("send SMS by new category", product)
+	s.logger.Debug(fmt.Sprintf("send SMS by new category %v", product))
 	return true
 }
 
-func NewSmsNotificator() *SmsNotificator {
+func NewSmsNotificator(logger *core.Logger) *SmsNotificator {
 
-	return &SmsNotificator{}
+	return &SmsNotificator{
+		logger: logger,
+	}
 }

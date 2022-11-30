@@ -5,7 +5,11 @@ import (
 	"strings"
 )
 
-func getAttributeValue(attrName string, product Product) (string, error) {
+type Categorizer struct {
+	logger *Logger
+}
+
+func (s Categorizer) getAttributeValue(attrName string, product Product) (string, error) {
 	if attrName == "name" {
 		return product.Name, nil
 	}
@@ -19,15 +23,15 @@ func getAttributeValue(attrName string, product Product) (string, error) {
 
 type Comparator func(string, string) bool
 
-func Equals(value string, expected string) bool {
+func (s Categorizer) Equals(value string, expected string) bool {
 	return value == expected
 }
 
-func Contains(value string, expected string) bool {
+func (s Categorizer) Contains(value string, expected string) bool {
 	return strings.Contains(value, expected)
 }
 
-func MatchAny(comp Comparator, value string, expecteds []string) bool {
+func (s Categorizer) MatchAny(comp Comparator, value string, expecteds []string) bool {
 	for _, expected := range expecteds {
 		matched := comp(value, expected)
 		if matched == true {
@@ -37,7 +41,7 @@ func MatchAny(comp Comparator, value string, expecteds []string) bool {
 	return false
 }
 
-func MatchAll(comp Comparator, value string, expecteds []string) bool {
+func (s Categorizer) MatchAll(comp Comparator, value string, expecteds []string) bool {
 	for _, expected := range expecteds {
 		matched := comp(value, expected)
 		if matched != true {
@@ -47,11 +51,11 @@ func MatchAll(comp Comparator, value string, expecteds []string) bool {
 	return true
 }
 
-func CategorizeProductByRules(product Product, classifications []Classification) (string, error) {
+func (s Categorizer) CategorizeProductByRules(product Product, classifications []Classification) (string, error) {
 	for _, classification := range classifications {
 		matchedAll := false
 		for _, rule := range classification.Rules {
-			attrValue, err := getAttributeValue(rule.AttributeName, product)
+			attrValue, err := s.getAttributeValue(rule.AttributeName, product)
 			if err != nil {
 				return "", err
 			}
@@ -60,63 +64,63 @@ func CategorizeProductByRules(product Product, classifications []Classification)
 
 			if rule.Operator == "equal" {
 				if rule.Operation == "OR" {
-					matched = MatchAny(Equals, attrValue, rule.ExpectedValues)
+					matched = s.MatchAny(s.Equals, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = MatchAll(Equals, attrValue, rule.ExpectedValues)
+					matched = s.MatchAll(s.Equals, attrValue, rule.ExpectedValues)
 				}
 			}
 
 			if rule.Operator == "contains" {
 				if rule.Operation == "OR" {
-					matched = MatchAny(Contains, attrValue, rule.ExpectedValues)
+					matched = s.MatchAny(s.Contains, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = MatchAll(Contains, attrValue, rule.ExpectedValues)
+					matched = s.MatchAll(s.Contains, attrValue, rule.ExpectedValues)
 				}
 			}
 
 			if rule.Operator == "startWith" {
 				if rule.Operation == "OR" {
-					matched = MatchAny(strings.HasPrefix, attrValue, rule.ExpectedValues)
+					matched = s.MatchAny(strings.HasPrefix, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = MatchAll(strings.HasPrefix, attrValue, rule.ExpectedValues)
+					matched = s.MatchAll(strings.HasPrefix, attrValue, rule.ExpectedValues)
 				}
 			}
 
 			if rule.Operator == "notStartWith" {
 				if rule.Operation == "OR" {
-					matched = !MatchAny(strings.HasPrefix, attrValue, rule.ExpectedValues)
+					matched = !s.MatchAny(strings.HasPrefix, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = !MatchAll(strings.HasPrefix, attrValue, rule.ExpectedValues)
+					matched = !s.MatchAll(strings.HasPrefix, attrValue, rule.ExpectedValues)
 				}
 			}
 
 			if rule.Operator == "endWith" {
 				if rule.Operation == "OR" {
-					matched = MatchAny(strings.HasSuffix, attrValue, rule.ExpectedValues)
+					matched = s.MatchAny(strings.HasSuffix, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = MatchAll(strings.HasSuffix, attrValue, rule.ExpectedValues)
+					matched = s.MatchAll(strings.HasSuffix, attrValue, rule.ExpectedValues)
 				}
 			}
 
 			if rule.Operator == "notEndWith" {
 				if rule.Operation == "OR" {
-					matched = !MatchAny(strings.HasSuffix, attrValue, rule.ExpectedValues)
+					matched = !s.MatchAny(strings.HasSuffix, attrValue, rule.ExpectedValues)
 				}
 				if rule.Operation == "AND" {
-					matched = !MatchAll(strings.HasSuffix, attrValue, rule.ExpectedValues)
+					matched = !s.MatchAll(strings.HasSuffix, attrValue, rule.ExpectedValues)
 				}
 			}
 
-			fmt.Printf("field '%s' %s %s %s against '%s': %v \n",
+			s.logger.Info(fmt.Sprintf("field '%s' %s %s %s against '%s': %v \n",
 				rule.AttributeName, rule.Operator, rule.Operation,
 				rule.ExpectedValues, attrValue,
 				matched,
-			)
+			))
 
 			if matched == false {
 				matchedAll = false
@@ -132,4 +136,10 @@ func CategorizeProductByRules(product Product, classifications []Classification)
 
 	return "", nil
 
+}
+
+func NewCategorizer(logger *Logger) *Categorizer {
+	return &Categorizer{
+		logger: logger,
+	}
 }
