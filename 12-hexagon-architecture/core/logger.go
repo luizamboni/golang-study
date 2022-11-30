@@ -42,8 +42,25 @@ func (s Logger) Error(text string) {
 	}
 }
 
-func NewLogger(level LogLevel) *Logger {
+func parseLogLevel(levelName string) LogLevel {
+	if levelName == "ERROR" {
+		return 0
+	}
+	if levelName == "WARN" {
+		return 1
+	}
+	if levelName == "INFO" {
+		return 2
+	}
+	if levelName == "DEBUG" {
+		return 3
+	}
+
+	panic(fmt.Sprintf("unkown logger level %v", levelName))
+}
+
+func NewLogger(level string) *Logger {
 	return &Logger{
-		level: level,
+		level: parseLogLevel(level),
 	}
 }

@@ -10,10 +10,16 @@ import (
 	"go-study.com/m/adapters/memory/repo"
 
 	"go-study.com/m/core"
+	configutil "go-study.com/m/core/config"
 )
 
 func main() {
-	logger := core.NewLogger(core.DEBUG)
+
+	config := configutil.LoadConfig("./config/general.json")
+	loglevel := config.GetAsString("loglevel")
+	print(loglevel)
+
+	logger := core.NewLogger(loglevel)
 
 	ruleRepo := repo.NewRuleRepo()
 	// productRepo := repo.NewRuleRepo()
