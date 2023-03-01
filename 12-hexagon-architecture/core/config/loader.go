@@ -2,7 +2,6 @@ package config
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -43,7 +42,7 @@ func (s Config) GetAsString(keyName string) string {
 
 func (s Config) GetAsInt(keyName string) int64 {
 	value := s.payload[keyName].(string)
-	fmt.Println(value)
+
 	if strings.HasPrefix(value, "ENV:") {
 		tokens := strings.SplitAfter(value, "ENV:")
 		envValue := tokens[1]
