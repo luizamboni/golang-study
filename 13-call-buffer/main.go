@@ -10,48 +10,67 @@ import (
 type Callback func(x []interface{}) error
 
 type CallerBuffer struct {
-	inputs           []interface{}
-	callback         Callback
-	maxLen           int
-	timeoutInSeconds int
+	inputs          []interface{}
+	callback        Callback
+	maxLen          int
+	timeLimit       int
+	ticker          *time.Ticker
+	flushedByMaxLen chan bool
 }
 
 func (s *CallerBuffer) addItem(value interface{}) {
+
 	s.inputs = append(s.inputs, value)
 	if len(s.inputs) >= s.maxLen {
+		fmt.Printf("MAX ITEMS flushData: %v \n", time.Now().Format("15:04:05"))
 		s.flushData()
+		s.flushedByMaxLen <- true
 	}
 }
 
 func (s *CallerBuffer) flushData() {
 	if len(s.inputs) > 0 {
-		var inputs []interface{}
-		for _, item := range s.inputs {
-			inputs = append(inputs, item)
-		}
-		s.callback(inputs)
+		s.callback(s.inputs)
 		s.inputs = nil
 	}
 }
 
 func (s *CallerBuffer) start() {
-	ticker := time.NewTicker(time.Duration(s.maxLen) * time.Second)
-	quit := make(chan struct{})
-	go func() {
-		for {
-			select {
-			case <-ticker.C:
-				s.flushData()
-			case <-quit:
-				ticker.Stop()
-				return
-			}
+	for {
+		select {
+
+		case <-s.ticker.C:
+			fmt.Printf("TIMEOUT REACHED flushData: %v \n", time.Now().Format("15:04:05"))
+			s.flushData()
+
+		case <-s.flushedByMaxLen:
+			fmt.Println("RESETING ticker")
+			s.ticker.Stop()
+			s.ticker = nil
+			s.ticker = time.NewTicker(tickerDuration(s.timeLimit))
 		}
-	}()
+	}
+}
+
+func tickerDuration(seconds int) time.Duration {
+	return time.Duration(seconds) * time.Second
+}
+
+func NewCallerBuffer(timeLimit int, maxLen int, callback Callback) *CallerBuffer {
+
+	buffer := &CallerBuffer{
+		callback:  sendData,
+		maxLen:    maxLen,
+		timeLimit: timeLimit,
+	}
+	ticker := time.NewTicker(tickerDuration(buffer.timeLimit))
+	buffer.ticker = ticker
+	buffer.flushedByMaxLen = make(chan bool)
+	go buffer.start()
+	return buffer
 }
 
 func sendData(items []interface{}) error {
-	fmt.Println("flushing ........")
 	for _, item := range items {
 		concreteItem := item.(ApiMessage)
 		fmt.Println(reflect.TypeOf(concreteItem), item)
@@ -69,27 +88,24 @@ type ApiMessage struct {
 func main() {
 	wg.Add(1)
 
-	inputs := []int{
-		1, 2, 3, 4, 4, 23, 23, 454, 5, 665, 6565,
-		5, 5, 3, 4, 54, 545, 55, 52, 1, 2, 9, 7,
-	}
 	var messages []ApiMessage
 
-	for _, number := range inputs {
-		messages = append(messages, ApiMessage{number, "mtc"})
+	for i := 1; i <= 14; i++ {
+		messages = append(messages, ApiMessage{i, "mtc"})
 	}
+	fmt.Printf("INITED %v \n", time.Now().Format("15:04:05"))
 
-	buffer := &CallerBuffer{
-		callback:         sendData,
-		maxLen:           10,
-		timeoutInSeconds: 10,
-	}
+	buffer := NewCallerBuffer(5, 5, sendData)
 
-	for _, msg := range messages {
+	for _, msg := range messages[0:10] {
+		time.Sleep(500 * time.Millisecond)
 		buffer.addItem(msg)
 	}
 
-	go buffer.start()
+	for _, msg := range messages[10:14] {
+		time.Sleep(500 * time.Millisecond)
+		buffer.addItem(msg)
+	}
 
 	wg.Wait()
 }
