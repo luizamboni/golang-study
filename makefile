@@ -6,4 +6,4 @@ run:
 	docker run \
 	-v $(shell pwd):/apps/ \
 	golang-study \
-	go run /apps/12-hexagon-architecture/main.go
+	go run /apps/13-time/main.go

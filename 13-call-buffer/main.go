@@ -10,12 +10,12 @@ import (
 type Callback func(x []interface{}) error
 
 type CallerBuffer struct {
-	inputs          []interface{}
-	callback        Callback
-	maxLen          int
-	timeLimit       int
-	ticker          *time.Ticker
-	flushedByMaxLen chan bool
+	inputs    []interface{}
+	callback  Callback
+	maxLen    int
+	timeLimit int
+	ticker    *time.Ticker
+	flushed   chan bool
 }
 
 func (s *CallerBuffer) addItem(value interface{}) {
@@ -23,8 +23,7 @@ func (s *CallerBuffer) addItem(value interface{}) {
 	s.inputs = append(s.inputs, value)
 	if len(s.inputs) >= s.maxLen {
 		fmt.Printf("MAX ITEMS flushData: %v \n", time.Now().Format("15:04:05"))
-		s.flushData()
-		s.flushedByMaxLen <- true
+		s.flushed <- true
 	}
 }
 
@@ -36,6 +35,8 @@ func (s *CallerBuffer) flushData() {
 }
 
 func (s *CallerBuffer) start() {
+	s.ticker = time.NewTicker(tickerDuration(s.timeLimit))
+
 	for {
 		select {
 
@@ -43,8 +44,9 @@ func (s *CallerBuffer) start() {
 			fmt.Printf("TIMEOUT REACHED flushData: %v \n", time.Now().Format("15:04:05"))
 			s.flushData()
 
-		case <-s.flushedByMaxLen:
+		case <-s.flushed:
 			fmt.Println("RESETING ticker")
+			s.flushData()
 			s.ticker.Stop()
 			s.ticker = nil
 			s.ticker = time.NewTicker(tickerDuration(s.timeLimit))
@@ -62,10 +64,9 @@ func NewCallerBuffer(timeLimit int, maxLen int, callback Callback) *CallerBuffer
 		callback:  sendData,
 		maxLen:    maxLen,
 		timeLimit: timeLimit,
+		flushed:   make(chan bool),
 	}
-	ticker := time.NewTicker(tickerDuration(buffer.timeLimit))
-	buffer.ticker = ticker
-	buffer.flushedByMaxLen = make(chan bool)
+
 	go buffer.start()
 	return buffer
 }
