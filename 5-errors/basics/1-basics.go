@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -20,6 +21,10 @@ func returnError() error {
 
 func main() {
 	err := returnError()
-	fmt.Println(Unwrap(err))
+	fmt.Println(errors.Unwrap(err))
 	fmt.Println(err)
+}
+
+func Unwrap(err error) {
+	panic("unimplemented")
 }
